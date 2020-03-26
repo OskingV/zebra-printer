@@ -14,6 +14,15 @@ import org.json.JSONObject;
 
 import java.util.Set;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.io.IOException;
+
 import com.zebra.sdk.comm.BluetoothConnection;
 import com.zebra.sdk.comm.Connection;
 import com.zebra.sdk.comm.ConnectionException;
@@ -164,13 +173,20 @@ public class ZebraPrinter extends CordovaPlugin {
      * @return
      */
     private boolean printCPCL(String cpcl) {
+        final ZebraPrinter instance = this;
         try {
             if (!isConnected()) {
                 Log.v("EMO", "Printer Not Connected");
                 return false;
             }
+            byte[] configLabel;
+            try {
+                configLabel = instance.decodeText(cpcl, "CP1251");
+            } catch (IOException e) {
+                Log.v("EMO", "Error Encoding", e);
+                return false;
+            }
 
-            byte[] configLabel = cpcl.getBytes();
             printerConnection.write(configLabel);
 
             if (printerConnection instanceof BluetoothConnection) {
@@ -182,6 +198,16 @@ public class ZebraPrinter extends CordovaPlugin {
             return false;
         }
         return true;
+    }
+
+    private byte[] decodeText(String text, String encoding) throws CharacterCodingException, UnsupportedEncodingException{
+        Charset charset = Charset.forName(encoding);
+        CharsetDecoder decoder = charset.newDecoder();
+        CharsetEncoder encoder = charset.newEncoder();
+        ByteBuffer bbuf = encoder.encode(CharBuffer.wrap(text));
+        CharBuffer cbuf = decoder.decode(bbuf);
+        String s = cbuf.toString();
+        return s.getBytes(encoding);
     }
 
     /***
@@ -287,7 +313,7 @@ public class ZebraPrinter extends CordovaPlugin {
             errorStatus.put("isHeadTooHot", false);
             errorStatus.put("isHeadOpen", false);
             errorStatus.put("isHeadCold", false);
-            errorStatus.put("isPartialFormatInProgress", false);        
+            errorStatus.put("isPartialFormatInProgress", false);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }

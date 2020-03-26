@@ -4,20 +4,16 @@ A Cordova plugin for Zebra CPCL printers for both iOS and Android with Ionic 3 b
 Also this now requires a minimum of Cordova 9 and cordova-ios 5.0.
 Current version of link_os_sdk is 1.5.1049
 
-Get from npm
+Get the latest version from git
 ```
-cordova plugin add ca-cleversolutions-zebraprinter
-```
-or get the latest version from git
-```
-cordova plugin add https://github.com/cleversolutions/cordova-zebra-printer.git
+cordova plugin add https://github.com/OskingV/zebra-printer
 ```
 
 To use with Ionic 3
 
 Add the Ionic 3 bindings to your app.module.ts file
 ```
-import { ZebraPrinter } from 'ca-cleversolutions-zebraprinter/native';
+import { ZebraPrinter } from 'ca-cleversolutions-zebraprinter-cyrillic/native';
 ...
 providers: [
     ZebraPrinter,
